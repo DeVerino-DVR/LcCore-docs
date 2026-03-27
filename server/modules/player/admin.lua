@@ -1,44 +1,47 @@
 -- LcCore Server Module - Admin
+-- Toutes les fonctions prennent un charId, pas une source.
 
 LcCore.Admin = {}
 
----@param source number
+---@param charId number
 ---@return boolean
-function LcCore.Admin.IsAdmin(source)
-    local player = LcCore.GetPlayer(source)
+function LcCore.Admin.IsAdmin(charId)
+    local player = LcCore.GetPlayerByCharId(charId)
     if not player then return false end
     local group = player.getGroup()
     return group == LcCore.Groups.ADMIN or group == LcCore.Groups.SUPERADMIN
 end
 
----@param source number
+---@param charId number
 ---@param group string
-function LcCore.Admin.SetGroup(source, group)
-    local player = LcCore.GetPlayer(source)
+function LcCore.Admin.SetGroup(charId, group)
+    local player = LcCore.GetPlayerByCharId(charId)
     if not player then return end
     player.setGroup(group)
 end
 
----@param source number
+---@param charId number
 ---@param reason string?
-function LcCore.Admin.Kick(source, reason)
+function LcCore.Admin.Kick(charId, reason)
+    local source = LcCore.GetSourceByCharId(charId)
+    if not source then return end
     DropPlayer(source, reason or 'Kicked by admin')
 end
 
----@param source number
+---@param charId number
 ---@param reason string?
----@param duration number? -- seconds, nil = permanent
----@param bannedBy number? -- source of admin
-function LcCore.Admin.Ban(source, reason, duration, bannedBy)
-    local player = LcCore.GetPlayer(source)
+---@param duration number?
+---@param adminCharId number?
+function LcCore.Admin.Ban(charId, reason, duration, adminCharId)
+    local player = LcCore.GetPlayerByCharId(charId)
     if not player then return end
 
-    local discord = player.getDiscord()
+    local discord <const> = player.getDiscord()
     local expire = duration and os.date('%Y-%m-%d %H:%M:%S', os.time() + duration) or nil
     local adminDiscord = nil
 
-    if bannedBy then
-        local admin = LcCore.GetPlayer(bannedBy)
+    if adminCharId then
+        local admin = LcCore.GetPlayerByCharId(adminCharId)
         if admin then adminDiscord = admin.getDiscord() end
     end
 
@@ -46,7 +49,7 @@ function LcCore.Admin.Ban(source, reason, duration, bannedBy)
         discord, reason, expire, adminDiscord
     })
 
-    LcCore.Admin.Kick(source, reason or 'Banni')
+    LcCore.Admin.Kick(charId, reason or 'Banni')
 end
 
 ---@param discord string

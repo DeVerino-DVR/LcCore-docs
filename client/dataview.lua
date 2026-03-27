@@ -1,4 +1,4 @@
----@diagnostic disable: assign-type-mismatch
+---@diagnostic disable: assign-type-mismatch, undefined-field
 -- DataView - Binary buffer manipulation for RDR3 natives
 -- Credit: gottfriedleibniz
 -- https://gist.github.com/gottfriedleibniz/8ff6e4f38f97dd43354a60f8494eedff
@@ -37,8 +37,6 @@ DataView.__index = DataView
 local function _ib(o, l, t) return ((t.size < 0 and true) or (o + (t.size - 1) <= l)) end
 local function _ef(big) return (big and DataView.EndBig) or DataView.EndLittle end
 
-local SetFixed = nil
-
 function DataView.ArrayBuffer(length)
     return setmetatable({
         offset = 1, length = length, blob = _strblob(length)
@@ -59,6 +57,28 @@ function DataView:SubView(offset)
     return setmetatable({
         offset = offset, blob = self.blob, length = self.length,
     }, DataView)
+end
+
+local SetFixed = function(self, offset, value, code)
+    local fmt = {}
+    local values = {}
+    if self.offset < offset then
+        local size = offset - self.offset
+        fmt[#fmt + 1] = "c" .. tostring(size)
+        values[#values + 1] = self.blob:sub(self.offset, size)
+    end
+    fmt[#fmt + 1] = code
+    values[#values + 1] = value
+    local ps = string.packsize(fmt[#fmt])
+    if (offset + ps) <= self.length then
+        local newoff = offset + ps
+        local size = self.length - newoff + 1
+        fmt[#fmt + 1] = "c" .. tostring(size)
+        values[#values + 1] = self.blob:sub(newoff, self.length)
+    end
+    self.blob = string.pack(table.concat(fmt, ""), table.unpack(values))
+    self.length = self.blob:len()
+    return self
 end
 
 for label, datatype in pairs(DataView.Types) do
@@ -98,28 +118,6 @@ for label, datatype in pairs(DataView.FixedTypes) do
         end
         return self
     end
-end
-
-SetFixed = function(self, offset, value, code)
-    local fmt = {}
-    local values = {}
-    if self.offset < offset then
-        local size = offset - self.offset
-        fmt[#fmt + 1] = "c" .. tostring(size)
-        values[#values + 1] = self.blob:sub(self.offset, size)
-    end
-    fmt[#fmt + 1] = code
-    values[#values + 1] = value
-    local ps = string.packsize(fmt[#fmt])
-    if (offset + ps) <= self.length then
-        local newoff = offset + ps
-        local size = self.length - newoff + 1
-        fmt[#fmt + 1] = "c" .. tostring(size)
-        values[#values + 1] = self.blob:sub(newoff, self.length)
-    end
-    self.blob = string.pack(table.concat(fmt, ""), table.unpack(values))
-    self.length = self.blob:len()
-    return self
 end
 
 _ENV.DataView = DataView

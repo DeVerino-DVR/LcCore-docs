@@ -2,15 +2,17 @@
 
 ## Server Events
 
+Tous les events emettent le **charId** (identifiant permanent), jamais la source.
+
 Ecouter avec `AddEventHandler()`.
 
 | Event | Params | Declencheur |
 |---|---|---|
-| `lc:jobChanged` | source, newJob, oldJob | `player.setJob()` |
-| `lc:gangChanged` | source, gang | `player.setGang()` |
-| `lc:groupChanged` | source, group | `player.setGroup()` |
-| `lc:moneyChanged` | source, type, amount, action | `player.addMoney/removeMoney/addGold/removeGold` |
-| `lc:itemChanged` | source, item, count, action | `player.addItem/removeItem` |
+| `lc:jobChanged` | charId, newJob, oldJob | `player.setJob()` |
+| `lc:gangChanged` | charId, gang | `player.setGang()` |
+| `lc:groupChanged` | charId, group | `player.setGroup()` |
+| `lc:moneyChanged` | charId, type, amount, action | `player.addMoney/removeMoney/addGold/removeGold` |
+| `lc:itemChanged` | charId, item, count, action | `player.addItem/removeItem` |
 | `lc:taxChanged` | countyId, taxRate | `LcCore.Economy.SetTax()` |
 | `lc:mayorChanged` | countyId, charId | `LcCore.Economy.SetMayor()` |
 
@@ -18,13 +20,13 @@ Ecouter avec `AddEventHandler()`.
 
 ```lua
 -- Reagir a un changement de job
-AddEventHandler('lc:jobChanged', function(source, newJob, oldJob)
-    print(source, 'est passe de', oldJob.name, 'a', newJob.name)
+AddEventHandler('lc:jobChanged', function(charId, newJob, oldJob)
+    print('CharId', charId, 'passe de', oldJob.name, 'a', newJob.name)
 end)
 
 -- Logger les transactions
-AddEventHandler('lc:moneyChanged', function(source, type, amount, action)
-    print(source, action, amount, type)
+AddEventHandler('lc:moneyChanged', function(charId, type, amount, action)
+    print('CharId', charId, action, amount, type)
 end)
 
 -- Reagir a un changement de taxe
@@ -46,7 +48,6 @@ end)
 ### Exemple
 
 ```lua
--- Faire quelque chose quand le joueur spawn
 AddEventHandler('lc:playerSpawned', function(charId, firstname, lastname)
     print('Spawn en tant que', firstname, lastname, '(charId:', charId, ')')
 end)
@@ -69,5 +70,33 @@ Resource restart
     -> meme flow (pas besoin de reco)
 
 Joueur drop
-    -> playerDropped (save + cleanup cache)
+    -> playerDropped (save + cleanup index)
+```
+
+## Identifiants
+
+| Identifiant | Usage | Scope |
+|---|---|---|
+| **charId** | ID permanent du joueur, utilise partout | Public (API, events, commandes) |
+| **discord** | Discord ID, pour les bans et l'auth | Interne (auth, bans) |
+| **source** | ID temporaire de session FiveM/RedM | Interne uniquement (transport reseau) |
+
+Un script externe ne devrait **jamais** manipuler la source directement. Toujours passer par le charId :
+
+```lua
+local LC = exports['LcCore']:GetCore()
+
+-- Trouver un joueur par son charId
+local player = LC.GetPlayerByCharId(42)
+player.addMoney(100)
+player.addItem('bread', 5)
+
+-- Admin: ban par charId
+LC.Admin.Ban(42, 'Triche', 86400)
+
+-- Commandes: le callback recoit deja le charId
+LC.Commands.Register('heal', 'admin', function(charId, args)
+    local targetId = tonumber(args[1])
+    -- targetId = charId du joueur cible
+end)
 ```

@@ -1,17 +1,19 @@
 -- LcCore Server - Commands
+-- Le callback recoit le charId au lieu de la source.
 
 LcCore.Commands = {}
 
 ---@param name string
 ---@param group string|table
----@param cb function
+---@param cb function -- cb(charId, args, rawCommand)
 ---@param suggestion table?
 function LcCore.Commands.Register(name, group, cb, suggestion)
     RegisterCommand(name, function(source, args, rawCommand)
         local player = LcCore.GetPlayer(source)
         if not player then return end
 
-        local playerGroup = player.getGroup()
+        local playerGroup <const> = player.getGroup()
+        local charId <const> = player.getCharId()
         local allowed = false
 
         if type(group) == 'table' then
@@ -26,7 +28,7 @@ function LcCore.Commands.Register(name, group, cb, suggestion)
         end
 
         if not allowed then return end
-        cb(source, args, rawCommand)
+        cb(charId, args, rawCommand)
     end, false)
 
     if suggestion then

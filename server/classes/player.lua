@@ -2,6 +2,7 @@
 -- All character methods are accessible directly on the player object.
 -- Delegates to the active character internally.
 -- State Bags: chaque setter sync automatiquement vers le client via Player state.
+-- Events: emettent le charId (identifiant permanent), jamais la source.
 
 ---@param source number
 ---@param discord string
@@ -64,7 +65,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char then return end
         self.char.group = group
         setState('group', group)
-        TriggerEvent('lc:groupChanged', self.source, group)
+        TriggerEvent('lc:groupChanged', self.char.charId, group)
     end
 
     -------------------------------------------------
@@ -85,7 +86,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         local old = self.char.job
         self.char.job = { name = name, grade = grade or 0, label = label or name }
         setState('job', self.char.job)
-        TriggerEvent('lc:jobChanged', self.source, self.char.job, old)
+        TriggerEvent('lc:jobChanged', self.char.charId, self.char.job, old)
     end
 
     -------------------------------------------------
@@ -101,7 +102,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char then return end
         self.char.gang = gang
         setState('gang', gang)
-        TriggerEvent('lc:gangChanged', self.source, gang)
+        TriggerEvent('lc:gangChanged', self.char.charId, gang)
     end
 
     -------------------------------------------------
@@ -118,7 +119,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char then return end
         self.char.money = self.char.money + amount
         setState('money', self.char.money)
-        TriggerEvent('lc:moneyChanged', self.source, 'money', amount, 'add')
+        TriggerEvent('lc:moneyChanged', self.char.charId, 'money', amount, 'add')
     end
 
     ---@param amount number
@@ -127,7 +128,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char or self.char.money < amount then return false end
         self.char.money = self.char.money - amount
         setState('money', self.char.money)
-        TriggerEvent('lc:moneyChanged', self.source, 'money', amount, 'remove')
+        TriggerEvent('lc:moneyChanged', self.char.charId, 'money', amount, 'remove')
         return true
     end
 
@@ -145,7 +146,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char then return end
         self.char.gold = self.char.gold + amount
         setState('gold', self.char.gold)
-        TriggerEvent('lc:moneyChanged', self.source, 'gold', amount, 'add')
+        TriggerEvent('lc:moneyChanged', self.char.charId, 'gold', amount, 'add')
     end
 
     ---@param amount number
@@ -154,7 +155,7 @@ function LcCore.CreatePlayer(source, discord, characters)
         if not self.char or self.char.gold < amount then return false end
         self.char.gold = self.char.gold - amount
         setState('gold', self.char.gold)
-        TriggerEvent('lc:moneyChanged', self.source, 'gold', amount, 'remove')
+        TriggerEvent('lc:moneyChanged', self.char.charId, 'gold', amount, 'remove')
         return true
     end
 
@@ -176,13 +177,13 @@ function LcCore.CreatePlayer(source, discord, characters)
             if v.name == item then
                 v.count = v.count + count
                 setState('inventory', inv)
-                TriggerEvent('lc:itemChanged', self.source, item, v.count, 'add')
+                TriggerEvent('lc:itemChanged', self.char.charId, item, v.count, 'add')
                 return
             end
         end
         inv[#inv + 1] = { name = item, count = count }
         setState('inventory', inv)
-        TriggerEvent('lc:itemChanged', self.source, item, count, 'add')
+        TriggerEvent('lc:itemChanged', self.char.charId, item, count, 'add')
     end
 
     ---@param item string
@@ -199,7 +200,7 @@ function LcCore.CreatePlayer(source, discord, characters)
                     table.remove(inv, i)
                 end
                 setState('inventory', inv)
-                TriggerEvent('lc:itemChanged', self.source, item, count, 'remove')
+                TriggerEvent('lc:itemChanged', self.char.charId, item, count, 'remove')
                 return true
             end
         end
