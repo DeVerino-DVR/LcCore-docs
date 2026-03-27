@@ -18,7 +18,7 @@ shared_scripts {
 client_scripts {
     'client/dataview.lua',
     'client/callbacks.lua',
-    'client/modules/*.lua',
+    'client/modules/**/*.lua',
     'client/spawn.lua',
     'client/api.lua',
     'client/main.lua',
@@ -27,10 +27,10 @@ client_scripts {
 -- Server
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/modules/database.lua', -- DB setup en premier
+    'server/modules/core/database.lua',
     'server/callbacks.lua',
     'server/classes/*.lua',
-    'server/modules/*.lua',
+    'server/modules/**/*.lua',
     'server/commands.lua',
     'server/api.lua',
     'server/main.lua',
