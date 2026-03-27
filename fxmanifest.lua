@@ -38,7 +38,7 @@ server_scripts {
 
 -- UI
 files {
-    'ui/**/*',
+    'web/build/**/*',
 }
 
-ui_page 'ui/index.html'
+ui_page 'web/build/index.html'

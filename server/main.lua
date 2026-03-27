@@ -12,7 +12,10 @@ AddEventHandler('onResourceStart', function(resourceName)
     print('[LcCore] ^2Server initialized^0')
 
     for _, playerId in ipairs(GetPlayers()) do
-        LcCore.InitPlayer(tonumber(playerId))
+        local src <const> = tonumber(playerId)
+        if src then
+            LcCore.InitPlayer(src)
+        end
     end
 end)
 
@@ -62,7 +65,7 @@ end
 function LcCore.InitPlayer(source)
     local discord = LcCore.GetDiscordId(source)
     if not discord then
-        DropPlayer(source, 'Discord non detecte. Lance Discord avant de te connecter.')
+        DropPlayer(tostring(source), 'Discord non detecte. Lance Discord avant de te connecter.')
         return
     end
 
@@ -127,16 +130,18 @@ function LcCore.InitPlayer(source)
         TriggerClientEvent('lc:createCharacter', source)
     elseif charCount == 1 then
         local _, firstChar = next(characters)
-        player.setActiveChar(firstChar.charId)
-        indexChar(source, firstChar.charId)
-        TriggerClientEvent('lc:spawn', source, {
-            charId    = firstChar.charId,
-            firstname = firstChar.firstname,
-            lastname  = firstChar.lastname,
-            coords    = firstChar.coords,
-            skin      = firstChar.skin,
-            isDead    = firstChar.isDead,
-        })
+        if firstChar then
+            player.setActiveChar(firstChar.charId)
+            indexChar(source, firstChar.charId)
+            TriggerClientEvent('lc:spawn', source, {
+                charId    = firstChar.charId,
+                firstname = firstChar.firstname,
+                lastname  = firstChar.lastname,
+                coords    = firstChar.coords,
+                skin      = firstChar.skin,
+                isDead    = firstChar.isDead,
+            })
+        end
     else
         local charList = {}
         for charId, char in pairs(characters) do

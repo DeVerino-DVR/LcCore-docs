@@ -13,7 +13,7 @@ local counties = {}
 -------------------------------------------------
 -- Init
 -------------------------------------------------
-Citizen.CreateThread(function()
+CreateThread(function()
     local rows = MySQL.query.await('SELECT * FROM lc_counties')
     if rows then
         for _, row in ipairs(rows) do

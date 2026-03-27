@@ -25,7 +25,7 @@ end
 function LcCore.Admin.Kick(charId, reason)
     local source = LcCore.GetSourceByCharId(charId)
     if not source then return end
-    DropPlayer(source, reason or 'Kicked by admin')
+    DropPlayer(tostring(source), reason or 'Kicked by admin')
 end
 
 ---@param charId number

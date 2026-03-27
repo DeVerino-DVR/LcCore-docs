@@ -8,8 +8,9 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Accueil', link: '/' },
-      { text: 'API Server', link: '/server' },
-      { text: 'API Client', link: '/client' },
+      { text: 'Server', link: '/server' },
+      { text: 'Client', link: '/client' },
+      { text: 'Menu', link: '/menu' },
     ],
 
     sidebar: [
@@ -32,6 +33,7 @@ export default defineConfig({
         text: 'API Client',
         items: [
           { text: 'Callbacks, State, KVP', link: '/client' },
+          { text: 'Menu', link: '/menu' },
         ]
       },
     ],

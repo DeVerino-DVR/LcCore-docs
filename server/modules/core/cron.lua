@@ -70,7 +70,8 @@ end
 
 local function getNextTime(schedule)
     local now = os.time()
-    local t = os.date('*t', now + 60) -- start from next minute
+    ---@type osdate
+    local t = os.date('*t', now + 60) --[[@as osdate]]
     t.sec = 0
 
     -- Try up to 366 days ahead
@@ -87,7 +88,8 @@ local function getNextTime(schedule)
         -- Advance 1 minute
         t.min = t.min + 1
         local ts = os.time(t)
-        t = os.date('*t', ts)
+        ---@type osdate
+        t = os.date('*t', ts) --[[@as osdate]]
         t.sec = 0
     end
 
@@ -118,7 +120,7 @@ function LcCore.Cron.New(expression, callback, label)
         active     = true,
     }
 
-    Citizen.CreateThread(function()
+    CreateThread(function()
         while tasks[id] and tasks[id].active do
             local nextTime = getNextTime(schedule)
             if not nextTime then
@@ -128,7 +130,7 @@ function LcCore.Cron.New(expression, callback, label)
 
             local sleepMs = (nextTime - os.time()) * 1000
             if sleepMs > 0 then
-                Citizen.Wait(sleepMs)
+                Wait(sleepMs)
             end
 
             -- Double check task is still active after sleep

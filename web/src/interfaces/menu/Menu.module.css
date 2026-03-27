@@ -1,0 +1,318 @@
+/*
+  Menu RDR2 - Dimensions exactes LastCountry 2.0
+  Tout est fixe : 400px de large, items de 48px, description de 280px.
+*/
+
+/* Wrapper */
+.wrapper {
+  position: absolute;
+  pointer-events: none;
+  width: 400px;
+  transform-origin: top center;
+  animation: menuUnfold 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.wrapperClosing {
+  position: absolute;
+  pointer-events: none;
+  width: 400px;
+  transform-origin: top center;
+  animation: menuFold 200ms cubic-bezier(0.55, 0, 1, 0.45) forwards;
+}
+
+@keyframes menuUnfold {
+  0% { transform: scaleY(0); opacity: 0; }
+  60% { transform: scaleY(1.02); opacity: 1; }
+  80% { transform: scaleY(0.99); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes menuFold {
+  0% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0); opacity: 0; }
+}
+
+/* Container - le background.png EST le menu entier */
+.container {
+  width: calc(100% + 90px);
+  margin-left: -45px;
+  background: url('/background/background.png') no-repeat center center;
+  background-size: 100% 100%;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  overflow: hidden;
+  padding: 20px 45px 30px 45px;
+}
+
+/* Header - ratio 4:1 (image 432x108) */
+.header {
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  background: url('/header/menu_header.png') no-repeat center center;
+  background-size: 100% 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerTitle {
+  font-family: 'RDRLino', serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.1;
+}
+
+/* Subtitle bar */
+.subtitleBar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.subtitleText {
+  font-family: 'ChineseRocks', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Items wrapper - hauteur fixe, overflow hidden pour le scroll virtuel */
+.itemsWrapper {
+  overflow: hidden;
+  padding: 0 8px;
+  pointer-events: auto;
+}
+
+/* Item - exactement 48px */
+.item {
+  position: relative;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  cursor: pointer;
+  background: url('/button/button_background.png') no-repeat center center;
+  background-size: 100% 100%;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+  transition: none;
+}
+
+.itemFocused {
+  background-image: url('/button/selection_box_bg_1c.png');
+}
+
+.itemDisabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Selected border */
+.selectedBorder {
+  position: absolute;
+  top: -1px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: url('/selected/selsected_background.png') no-repeat center center;
+  background-size: 100% 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Item content */
+.itemContent {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  height: 48px;
+  gap: 12px;
+}
+
+/* Labels */
+.itemLabel {
+  font-family: 'ChineseRocks', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.itemLabelFocused {
+  color: rgba(255, 255, 255, 1);
+  font-weight: 500;
+}
+
+.itemRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rightLabel {
+  font-family: 'RDRLino', serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.rightLabelFocused {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Arrows */
+.arrows {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: -2px;
+}
+
+.arrowsFocused {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Chevrons + scroll values */
+.chevron {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chevronFocused {
+  color: rgba(255, 255, 255, 1);
+}
+
+.scrollValue {
+  font-family: 'ChineseRocks', sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.scrollValueFocused {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Checkbox */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+}
+
+.checkboxChecked {
+  border-color: #fff;
+}
+
+/* Text input */
+.textInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'RDRLino', serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.8);
+  width: 180px;
+  text-align: right;
+  padding: 0;
+  margin: 0;
+}
+
+.textInputFocused {
+  color: rgba(255, 255, 255, 1);
+}
+
+.textInput::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Separator - meme hauteur 48px */
+.separator {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.separatorText {
+  font-family: 'RDRLino', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Counter */
+.counterBar {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 6px 14px;
+}
+
+.counterText {
+  font-family: 'ChineseRocks', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Description zone - TOUJOURS 280px, jamais change */
+.descriptionZone {
+  height: 280px;
+  overflow: hidden;
+}
+
+.descriptionText {
+  padding: 12px 20px;
+  font-family: 'ChineseRocks', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
+
+/* Footer */
+.divider {
+  width: 85%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: brightness(1.8);
+}
+
+.copyright {
+  width: 100%;
+  text-align: center;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  padding: 4px 0 2px 0;
+}

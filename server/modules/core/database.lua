@@ -1,7 +1,7 @@
 -- LcCore Server Module - Database Auto-Setup
 -- Cree automatiquement les tables si elles n'existent pas au demarrage.
 
-Citizen.CreateThread(function()
+CreateThread(function()
     -- lc_characters
     MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS `lc_characters` (

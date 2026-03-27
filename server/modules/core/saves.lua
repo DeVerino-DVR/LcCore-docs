@@ -44,7 +44,7 @@ end
 -------------------------------------------------
 -- Auto-save via Cron (pas de while true)
 -------------------------------------------------
-Citizen.CreateThread(function()
+CreateThread(function()
     -- Wait for cron module to be ready
     while not LcCore.Cron do Wait(100) end
 

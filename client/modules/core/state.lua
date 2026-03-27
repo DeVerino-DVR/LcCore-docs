@@ -29,7 +29,7 @@ function LcCore.State.OnChange(key, cb)
 end
 
 -- Listen for all player state changes
-AddStateBagChangeHandler(nil, 'player:' .. tostring(PlayerId()), function(bagName, key, value)
+AddStateBagChangeHandler('' --[[@as nil]], 'player:' .. tostring(PlayerId()), function(_, key, value)
     if watchers[key] then
         for _, cb in ipairs(watchers[key]) do
             cb(value)

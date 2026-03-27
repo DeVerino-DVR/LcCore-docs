@@ -1,0 +1,31 @@
+@font-face {
+  font-family: 'RDRLino';
+  src: url('/fonts/RDRLino-Regular.ttf') format('truetype');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'ChineseRocks';
+  src: url('/fonts/chineserocks.ttf') format('truetype');
+  font-weight: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'ChineseRocks', sans-serif;
+  background: transparent;
+  overflow: hidden;
+  color: #fff;
+  user-select: none;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
