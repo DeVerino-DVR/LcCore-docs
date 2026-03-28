@@ -6,7 +6,7 @@
 local LC = exports['DVRCore']:GetCore()
 ```
 
-## Player (style ESX)
+## Player
 
 Toutes les methodes sont directement sur l'objet player. Chaque setter met a jour automatiquement le State Bag correspondant. Le **charId** est l'identifiant permanent du joueur (pas la source).
 

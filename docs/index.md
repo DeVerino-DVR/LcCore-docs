@@ -1,11 +1,11 @@
 # DVRCore Framework
 
-Framework custom RedM.
+Framework custom pour LastCountry (RedM).
 
 ## Principes
 
 - **Discord ID** comme identifiant unique
-- **Style ESX** : `player.addMoney()`, `player.addItem()`, `player.setJob()`
+- **API intuitive** : `player.addMoney()`, `player.addItem()`, `player.setJob()`
 - **State Bags** : sync temps reel server -> client
 - **KVP** : preferences locales sans reseau
 - **Callbacks return-based** : `DVRCore.Callback.Await()` avec return direct
@@ -49,7 +49,7 @@ DVRCore/
 │   ├── api.lua
 │   ├── main.lua
 │   ├── classes/
-│   │   ├── player.lua            -- Player ESX-style + State Bags
+│   │   ├── player.lua            -- Player API + State Bags
 │   │   └── character.lua         -- Character data
 │   └── modules/
 │       ├── core/
@@ -74,6 +74,4 @@ DVRCore/
 - [Character](./character.md) - Flow de creation de personnage
 - [Economie & Taxes](./economy.md) - Systeme de comtes
 - [Base de donnees](./database.md) - Schema SQL
-- [KeyMapper](./keymapper.md) - Gestionnaire de touches
-- [Inventaire](./inventory.md) - Inventaire, items, money
 - [Evenements](./events.md) - Liste des events
