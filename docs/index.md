@@ -1,52 +1,91 @@
 # DVRCore Framework
 
-Framework custom pour LastCountry (RedM).
+Framework custom pour RedM, base sur **jo_libs** (Jump On Studios).
 
 ## Principes
 
 - **Discord ID** comme identifiant unique
-- **API intuitive** : `player.addMoney()`, `player.addItem()`, `player.setJob()`
+- **jo_libs** pour tous les systemes UI (menus, notifications, prompts, inputs, skin)
 - **State Bags** : sync temps reel server -> client
 - **KVP** : preferences locales sans reseau
-- **Callbacks return-based** : `DVRCore.Callback.Await()` avec return direct
-- **Notifications natives** RedM (pas de NUI pour les notifs)
+- **Callbacks return-based** : `Core.Callback.Await()` (wrap `jo.callback.triggerServer`)
+- **Notifications jo_libs** : `jo.notif.right()` (plus de `Core.Notify.*`)
 - **Optimise 800+ joueurs** : zero boucle, tout en cache table
 - **Multi-personnage** : 1 perso = spawn direct, 2+ = selection
+- **Framework bridge** : jo_libs detecte DVRCore automatiquement, les scripts Jump On natifs fonctionnent directement
+
+## Dependances
+
+- **jo_libs** : `@jo_libs/init.lua` en premier shared_script
+- **oxmysql** : base de donnees MySQL
+
+## fxmanifest
+
+```lua
+jo_libs {
+    'framework-bridge',
+    'callback',
+    'notification',
+    'prompt-nui',
+    'nui',
+    'raw-keys',
+    'component',
+    'ped-texture',
+    'entity',
+    'blip',
+    'camera',
+    'player',
+    'me',
+    'animation',
+    'table',
+    'utils',
+    'dataview',
+    'string',
+    'timeout',
+    'input',
+}
+
+ui_page 'nui://jo_libs/nui/index.html'
+```
+
+L'`ui_page` pointe vers l'iframe manager de jo_libs qui charge les modules NUI (menu, input, prompt).
 
 ## Structure
 
 ```
 DVRCore/
 ├── fxmanifest.lua
-├── config/config.lua
-├── shared/shared.lua
+├── config/
+│   ├── config.lua
+│   ├── groups.lua
+│   ├── character.lua
+│   ├── spawn.lua
+│   ├── session.lua
+│   └── death.lua
+├── shared/
+│   ├── shared.lua
+│   └── items.lua
 ├── client/
-│   ├── dataview.lua              -- Buffer binaire pour natives RDR3
-│   ├── callbacks.lua             -- Callback system (return-based)
+│   ├── callbacks.lua             -- Callback system (wrap jo.callback)
 │   ├── spawn.lua                 -- Spawn, animscene intro, creation de perso
 │   ├── api.lua                   -- Exports client
 │   ├── main.lua                  -- Entry point
 │   └── modules/
 │       ├── core/
 │       │   ├── camera.lua        -- API Camera (Create, Interp, PostFX)
-│       │   ├── prompts.lua       -- API Prompts natifs RDR3
 │       │   ├── state.lua         -- State Bags (lecture)
 │       │   ├── kvp.lua           -- KVP (stockage local)
 │       │   └── utils.lua         -- LoadModel, LoadAnimDict
 │       ├── ui/
-│       │   └── menu.lua          -- Menu API avec stack (Open/Push/Back)
-│       ├── skin/
-│       │   ├── skin.lua          -- API skin natives (composants, overlays)
-│       │   ├── data.lua          -- Donnees skin (heritage, features, yeux)
-│       │   └── editor.lua        -- Editeur interactif (grille 2D, live update)
-│       ├── notifications/
-│       │   └── notifications.lua -- Notifications natives RDR3
-│       └── inventory/
-│           └── inventory.lua     -- Inventaire
+│       │   └── menu.lua          -- Core.Menu (SendNUIMessage vers jo_libs)
+│       └── skin/
+│           ├── skin.lua          -- API skin via jo.component
+│           ├── data.lua          -- Donnees skin (heritage, features, yeux)
+│           └── editor.lua        -- Editeur interactif (sliders, grids, palettes)
 ├── server/
-│   ├── callbacks.lua
+│   ├── callbacks.lua             -- Wrap jo.callback.register
 │   ├── commands.lua
-│   ├── api.lua
+│   ├── api.lua                   -- Exports server individuels
 │   ├── main.lua
 │   ├── classes/
 │   │   ├── player.lua            -- Player API + State Bags
@@ -58,19 +97,19 @@ DVRCore/
 │       │   └── saves.lua         -- Auto-save
 │       ├── economy/economy.lua   -- Taxes par comte
 │       └── player/admin.lua      -- Admin
-├── web/                          -- NUI (React + Vite)
-│   └── src/interfaces/menu/     -- Menu React avec grille 2D
+├── sql/
+│   └── database.sql
 └── docs/
 ```
 
 ## Pages
 
-- [API Server](./server.md) - Player, economy, callbacks
-- [API Client](./client.md) - State Bags, KVP, notifications
-- [Menu](./menu.md) - Menu API avec stack, grille 2D, callbacks live
-- [Skin](./skin.md) - Skin API, editeur, overlays, expressions
+- [API Server](./server.md) - Player, economy, callbacks, exports
+- [API Client](./client.md) - State Bags, KVP, notifications, callbacks
+- [Menu](./menu.md) - Core.Menu API (style ox_lib, via jo_libs NUI)
+- [Skin](./skin.md) - Skin API via jo.component
 - [Camera](./camera.md) - Camera API
-- [Prompts](./prompts.md) - Prompts natifs RDR3
+- [Prompts](./prompts.md) - Prompts NUI via jo.promptNui
 - [Character](./character.md) - Flow de creation de personnage
 - [Economie & Taxes](./economy.md) - Systeme de comtes
 - [Base de donnees](./database.md) - Schema SQL

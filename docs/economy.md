@@ -6,7 +6,7 @@ Chaque comte a :
 - Un **taux de taxe** (pourcentage)
 - Un **maire** (charId d'un joueur)
 
-Quand un script demande un prix, `DVRCore.Economy.GetPrice()` applique automatiquement la taxe du comte.
+Quand un script demande un prix, `Core.Economy.GetPrice()` applique automatiquement la taxe du comte.
 
 ## Comtes par defaut
 
@@ -23,20 +23,20 @@ Quand un script demande un prix, `DVRCore.Economy.GetPrice()` applique automatiq
 ### Calculer un prix avec taxe
 
 ```lua
-local prixFinal, montantTaxe = DVRCore.Economy.GetPrice(10.0, 'new_hanover')
+local prixFinal, montantTaxe = Core.Economy.GetPrice(10.0, 'new_hanover')
 -- Si taxe = 15% -> prixFinal = 11.5, montantTaxe = 1.5
 ```
 
 ### Gestion des comtes
 
 ```lua
-DVRCore.Economy.GetCounties()                    -- tous les comtes (cache)
-DVRCore.Economy.GetCounty('new_hanover')         -- un comte
-DVRCore.Economy.SetTax('new_hanover', 15)        -- 15% de taxe
-DVRCore.Economy.SetMayor('new_hanover', charId)  -- definir le maire
-DVRCore.Economy.GetMayor('new_hanover')          -- charId du maire
-DVRCore.Economy.IsMayor(source)                  -- maire de n'importe quel comte?
-DVRCore.Economy.IsMayor(source, 'new_hanover')   -- maire de ce comte?
+Core.Economy.GetCounties()                    -- tous les comtes (cache)
+Core.Economy.GetCounty('new_hanover')         -- un comte
+Core.Economy.SetTax('new_hanover', 15)        -- 15% de taxe
+Core.Economy.SetMayor('new_hanover', charId)  -- definir le maire
+Core.Economy.GetMayor('new_hanover')          -- charId du maire
+Core.Economy.IsMayor(source)                  -- maire de n'importe quel comte?
+Core.Economy.IsMayor(source, 'new_hanover')   -- maire de ce comte?
 ```
 
 ## Exemple: script boucher
@@ -48,26 +48,26 @@ local LC = exports['DVRCore']:GetCore()
 local basePrix = 10.0
 local county = 'new_hanover' -- detecte par zone
 
-local prixFinal, taxe = DVRCore.Economy.GetPrice(basePrix, county)
+local prixFinal, taxe = Core.Economy.GetPrice(basePrix, county)
 -- Le maire a mis 15% -> prixFinal = 11.5
 
 local player = LC.GetPlayer(source)
 player.addMoney(prixFinal)
 ```
 
-## Callbacks pour le panel NUI (maire)
+## Callbacks pour le panel (maire)
 
 ```lua
 -- Client: recuperer tous les comtes
-local counties = DVRCore.Callback.Await('dvr:economy:getCounties')
+local counties = Core.Callback.Await('core:economy:getCounties')
 
 -- Client: modifier la taxe (verifie si maire ou admin)
-local success = DVRCore.Callback.Await('dvr:economy:setTax', 'new_hanover', 15)
+local success = Core.Callback.Await('core:economy:setTax', 'new_hanover', 15)
 ```
 
 ## Events
 
 | Event | Params | Description |
 |---|---|---|
-| `dvr:taxChanged` | countyId, taxRate | Taxe modifiee |
-| `dvr:mayorChanged` | countyId, charId | Maire change |
+| `core:taxChanged` | countyId, taxRate | Taxe modifiee |
+| `core:mayorChanged` | countyId, charId | Maire change |

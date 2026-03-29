@@ -1,153 +1,234 @@
 # Menu API
 
-API pour ouvrir des menus RDR2 depuis le Lua. Systeme de stack pour les sous-menus (zero flash).
+API de menus style ox_lib, rendue via l'iframe NUI de jo_libs. Les menus sont envoyes par `SendNUIMessage` vers le module menu de jo_libs.
 
-## Fonctions
+## API
 
-### Menu.Open(options, onSelect, onClose)
+### Core.Menu.Register(id, data, cb)
 
-Ouvre un menu (reset le stack, monte le composant NUI).
+Enregistre un menu avec son callback de selection.
 
 ```lua
-DVRCore.Menu.Open({
+Core.Menu.Register('mon_menu', {
     title = 'Mon Menu',
     subtitle = 'Options',
-    items = { ... },
-    position = 'top-left',
-    maxVisibleItems = 11,
-    canClose = true,
-}, function(index, scrollIndex, data)
-    -- data.texts, data.indexes, data.checked, data.sliders
-end, function()
-    print('Menu ferme')
+    numberOnScreen = 11,
+    onBack = function()
+        Core.Menu.Hide()
+    end,
+    items = {
+        { title = 'Option 1', textRight = '$10' },
+        { title = 'Option 2', subtitle = 'Description' },
+    },
+}, function(data)
+    -- data.index, data.item, etc.
+    print('Selection:', data.index)
 end)
 ```
 
-### Menu.Push(options, onSelect, onClose)
+### Core.Menu.Show(id)
 
-Ouvre un sous-menu sans flash. Le menu actuel est sauvegarde dans le stack. Le NUI est mis a jour sans remonter le composant React.
+Affiche un menu enregistre par son ID.
 
 ```lua
-DVRCore.Menu.Push({
-    title = 'Sous-menu',
-    subtitle = 'Detail',
-    items = { ... },
-    canClose = false,
-    onBack = function() -- Backspace
-        showParentMenu()
-    end,
-}, function(index) end)
+Core.Menu.Show('mon_menu')
 ```
 
-### Menu.Back()
+### Core.Menu.Hide()
 
-Pop le stack et restaure les callbacks du menu parent. Retourne `true` si un pop a ete fait.
+Cache le menu actif.
 
-### Menu.Close()
+### Core.Menu.GetOpen()
 
-Ferme tout (reset stack, cache NUI, relache le focus).
+Retourne l'ID du menu actuellement ouvert, ou `nil`.
 
-### Menu.GetStackSize()
+### Core.Menu.SetOptions(id, options, index)
 
-Retourne le nombre de niveaux dans le stack.
+Met a jour les options d'un menu enregistre. Si `index` est specifie, met a jour seulement l'item a cet index.
 
-## Options du menu
+```lua
+-- Mettre a jour tous les items
+Core.Menu.SetOptions('mon_menu', nouveauxItems)
+
+-- Mettre a jour un seul item
+Core.Menu.SetOptions('mon_menu', { title = 'Nouveau titre', textRight = '$20' }, 3)
+```
+
+### Pattern alternatif : Create + SetCurrent + Show
+
+```lua
+Core.Menu.Create('shop', {
+    title = 'Boutique',
+    subtitle = 'Valentine',
+    items = { ... },
+    onBack = function() Core.Menu.Hide() end,
+})
+
+Core.Menu.SetCurrent('shop')
+Core.Menu.Show(true, true)
+```
+
+## Donnees du menu
 
 | Propriete | Type | Description |
 |---|---|---|
 | `title` | string | Titre du menu |
 | `subtitle` | string? | Sous-titre |
 | `items` | table | Liste des items |
-| `position` | string? | `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'` |
-| `maxVisibleItems` | number? | Max items visibles (defaut 11, max 20) |
-| `canClose` | boolean? | `false` = Escape ne ferme pas, Backspace = retour |
-| `instant` | boolean? | `true` = pas d'animation d'ouverture |
-
-## Callbacks dans options
-
-| Callback | Params | Description |
-|---|---|---|
-| `onBack(index)` | index courant | Backspace quand `canClose = false` |
-| `onPreview(index, scrollIndex, item)` | navigation | Change d'item selectionne |
-| `onIndexChange(index, scrollIndex)` | fleches G/D | Scroll value change (live) |
-| `onGridChange(index, x, y)` | grille 2D | Point deplace (-1.0 a 1.0) |
-| `onSliderChange(index, sliderIndex, value)` | slider | Valeur slider change |
-| `onCheckChange(index, checked)` | checkbox | Toggle checkbox |
-| `onChild(index, child, item)` | sous-menu | Item avec `child` selectionne |
+| `numberOnScreen` | number? | Nombre max d'items visibles |
+| `onBack` | function? | Callback quand le joueur fait retour (Backspace/Escape) |
+| `onClose` | function? | Alternative a `onBack` |
 
 ## Options d'un item
 
 | Propriete | Type | Description |
 |---|---|---|
-| `label` | string | Texte principal |
-| `rightLabel` | string? | Texte a droite |
-| `description` | string? | Description en bas du menu |
-| `values` | string[]? | Valeurs scrollables (fleches G/D) |
-| `defaultIndex` | number? | Index de depart (1-based) |
-| `checked` | boolean? | Checkbox |
-| `type` | string? | `'separator'`, `'text'` |
-| `disabled` | boolean? | Grise l'item |
-| `close` | boolean? | `false` = ne ferme pas apres Enter |
-| `grid` | boolean/table? | Grille 2D dans la description |
-| `icon` | string? | Icone a gauche |
-| `price` | number? | Prix affiche |
-| `child` | string? | ID de sous-menu |
-| `sliders` | table[]? | Sliders (bar ou switch) |
-| `statistics` | table[]? | Barres de stats |
+| `title` | string | Texte principal |
+| `textRight` | string? | Texte a droite |
 | `subtitle` | string? | Sous-titre sous le label |
-| `footer` | string? | Texte en bas du footer |
+| `disabled` | boolean? | Grise l'item |
+| `child` | string? | ID d'un sous-menu (ouvre ce menu au clic) |
+| `onClick` | function? | Callback au clic |
+| `onChange` | function? | Callback quand un slider/grid change |
+| `sliders` | table[]? | Sliders, grids, ou palettes |
 
-## Grille 2D
+## Types de sliders
 
-Nouveau type d'item pour ajuster des valeurs en 2 dimensions.
+### Slider (barre)
 
 ```lua
-{ label = 'Largeur / Hauteur', grid = { labelX = 'Largeur', labelY = 'Hauteur', axis = 'xy' } }
-{ label = 'Juste largeur',     grid = { labelX = 'Largeur', axis = 'x' } }
-{ label = 'Grid simple',       grid = true }
+{
+    type = 'slider',
+    min = 0,
+    max = 100,
+    value = 50,
+    step = 1,
+}
 ```
 
-| `axis` | Forme | Description |
-|---|---|---|
-| `'xy'` | Carre | 2 axes (defaut) |
-| `'x'` | Rectangle horizontal | 1 axe gauche/droite |
-| `'y'` | Rectangle vertical | 1 axe haut/bas |
-
-Le callback `onGridChange(index, x, y)` envoie les valeurs de -1.0 a 1.0.
-
-## Exemple : menu avec sous-menus (stack)
+### Grid (selection de valeur)
 
 ```lua
-local function showDetails(item, backFn)
-    DVRCore.Menu.Push({
-        title = item.name,
-        subtitle = 'Detail',
-        items = {
-            { label = 'Prix', rightLabel = '$' .. item.price },
-            { label = 'Quantite', values = {'1','2','3','4','5'}, defaultIndex = 1, close = false },
-        },
-        canClose = false,
-        onBack = function() backFn() end,
-        onIndexChange = function(index, scrollIndex)
-            print('Quantite:', scrollIndex + 1)
-        end,
-    }, function(index)
-        if index == 1 then print('Achete!') end
-        backFn()
-    end)
-end
+{
+    type = 'grid',
+    values = { 'Petit', 'Moyen', 'Grand' },
+    current = 1,   -- index de la valeur actuelle (1-based)
+    label = true,   -- afficher le label de la valeur
+}
+```
 
-local function showShop()
-    DVRCore.Menu.Open({
-        title = 'Epicerie',
-        subtitle = 'Valentine',
-        items = {
-            { label = 'Pain',    rightLabel = '$2.50', close = false },
-            { label = 'Viande',  rightLabel = '$8.00', close = false },
-            { label = 'Whiskey', rightLabel = '$5.00', close = false },
+### Palette (couleur)
+
+```lua
+{
+    type = 'palette',
+    palette = 'hair',  -- nom de la palette
+    max = 63,          -- nombre de couleurs
+    current = 0,       -- index actuel
+}
+```
+
+## Exemples
+
+### Menu simple avec callback
+
+```lua
+Core.Menu.Register('epicerie', {
+    title = 'Epicerie',
+    subtitle = 'Valentine',
+    onBack = function()
+        Core.Menu.Hide()
+    end,
+    items = {
+        { title = 'Pain',    textRight = '$2.50', onClick = function() print('Pain achete') end },
+        { title = 'Viande',  textRight = '$8.00', onClick = function() print('Viande achetee') end },
+        { title = 'Whiskey', textRight = '$5.00', onClick = function() print('Whiskey achete') end },
+    },
+}, function(data)
+    print('Item selectionne:', data.index)
+end)
+
+Core.Menu.Show('epicerie')
+```
+
+### Menu avec sous-menus (child)
+
+```lua
+Core.Menu.Register('details_pain', {
+    title = 'Pain',
+    subtitle = 'Details',
+    onBack = function()
+        Core.Menu.Show('epicerie')
+    end,
+    items = {
+        { title = 'Acheter', onClick = function() print('Achete!') end },
+        { title = 'Prix', textRight = '$2.50', disabled = true },
+    },
+}, function() end)
+
+Core.Menu.Register('epicerie', {
+    title = 'Epicerie',
+    subtitle = 'Valentine',
+    onBack = function() Core.Menu.Hide() end,
+    items = {
+        { title = 'Pain', textRight = '$2.50', child = 'details_pain' },
+        { title = 'Viande', textRight = '$8.00' },
+    },
+}, function() end)
+
+Core.Menu.Show('epicerie')
+```
+
+### Menu avec sliders
+
+```lua
+Core.Menu.Register('parametres', {
+    title = 'Parametres',
+    onBack = function() Core.Menu.Hide() end,
+    items = {
+        {
+            title = 'Volume',
+            sliders = {
+                { type = 'slider', min = 0, max = 100, value = 80, step = 5 },
+            },
+            onChange = function(data)
+                print('Volume:', data.value)
+            end,
         },
-    }, function(index)
-        showDetails(items[index + 1], showShop)
-    end)
+        {
+            title = 'Taille',
+            sliders = {
+                { type = 'grid', values = {'S', 'M', 'L', 'XL'}, current = 2, label = true },
+            },
+            onChange = function(data)
+                print('Taille:', data.value)
+            end,
+        },
+        {
+            title = 'Couleur cheveux',
+            sliders = {
+                { type = 'palette', palette = 'hair', max = 63, current = 0 },
+            },
+            onChange = function(data)
+                print('Couleur:', data.value)
+            end,
+        },
+    },
+}, function() end)
+
+Core.Menu.Show('parametres')
+```
+
+### Mise a jour dynamique
+
+```lua
+-- Mettre a jour le prix d'un item
+Core.Menu.SetOptions('epicerie', { title = 'Pain', textRight = '$3.00' }, 1)
+
+-- Reconstruire toute la liste
+local nouveauxItems = {}
+for _, item in pairs(stock) do
+    table.insert(nouveauxItems, { title = item.label, textRight = '$' .. item.prix })
 end
+Core.Menu.SetOptions('epicerie', nouveauxItems)
 ```

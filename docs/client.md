@@ -1,22 +1,32 @@
 # API Client
 
-## Recuperer le Core
-
-```lua
-local LC = exports['DVRCore']:GetCore()
-```
-
 ## Callbacks
 
-Toujours en `Await` avec return direct, jamais de `cb()`.
+Wrappent `jo.callback.triggerServer`. Toujours en `Await` avec return direct, jamais de `cb()`.
 
 ```lua
--- Appel synchrone
-local data = DVRCore.Callback.Await('dvr:getPlayerData')
+-- Core.Callback.Await = jo.callback.triggerServer
+local data = Core.Callback.Await('core:getPlayerData')
 print(data.name, data.money)
 
 -- Avec arguments
-local price, tax = DVRCore.Callback.Await('dvr:getPrice', 10.0, 'new_hanover')
+local price, tax = Core.Callback.Await('core:getPrice', 10.0, 'new_hanover')
+```
+
+## Notifications
+
+Les notifications utilisent `jo.notif.right()` (module jo_libs). Plus de `Core.Notify.*`.
+
+### Depuis le client
+
+```lua
+jo.notif.right('Message ici')
+```
+
+### Depuis le server
+
+```lua
+jo.notif.right(source, 'Message ici')
 ```
 
 ## State Bags
@@ -26,12 +36,13 @@ Les State Bags sont mis a jour automatiquement par le server a chaque setter (`p
 ### Lire une valeur
 
 ```lua
+local LC = exports['DVRCore']:GetCore()
+
 local money = LC.State.Get('money')
 local job   = LC.State.Get('job')     -- { name, grade, label }
 local gold  = LC.State.Get('gold')
 local xp    = LC.State.Get('xp')
 local dead  = LC.State.Get('isDead')
-local inv   = LC.State.Get('inventory')
 ```
 
 ### Ecouter les changements
@@ -57,16 +68,17 @@ end)
 | `gang` | string | Gang |
 | `money` | number | Argent |
 | `gold` | number | Or |
-| `inventory` | table | Inventaire complet |
-| `slots` | number | Nombre de slots |
 | `isDead` | boolean | Est mort |
 | `xp` | number | Experience |
+| `slots` | number | Nombre de slots |
 
 ## KVP (stockage local)
 
 Pour les preferences du joueur. Stocke localement sur la machine, pas de reseau, pas de DB.
 
 ```lua
+local LC = exports['DVRCore']:GetCore()
+
 -- Sauvegarder
 LC.KVP.Set('hud_visible', true)
 LC.KVP.Set('volume', 0.8)
@@ -82,53 +94,20 @@ local count   = LC.KVP.GetInt('counter', 0)
 LC.KVP.Delete('old_key')
 ```
 
-## Notifications (natives RDR3)
+## Input NUI
 
-Notifications natives de Red Dead, pas de NUI.
-
-### Depuis le client
+Pour les formulaires de saisie, utiliser `jo.input.nui()` :
 
 ```lua
-DVRCore.Notify.Tip('Message simple', 3000)
-DVRCore.Notify.Right('Tip a droite', 3000)
-DVRCore.Notify.Center('Centre ecran', 3000, 'COLOR_PURE_WHITE')
-DVRCore.Notify.Bottom('Objectif', 3000)
-DVRCore.Notify.BottomRight('Bas droite', 3000)
-DVRCore.Notify.Top('Message', 'Valentine', 3000)
-DVRCore.Notify.SimpleTop('Titre', 'Sous-titre', 3000)
-DVRCore.Notify.Left('Titre', 'Sous-titre', 'generic_textures', 'tick', 3000, 'COLOR_WHITE')
-DVRCore.Notify.Advanced('Texte', 'generic_textures', 'tick', 'COLOR_WHITE', 3000)
-DVRCore.Notify.LeftRank('Titre', 'Sous-titre', 'generic_textures', 'tick', 5000, 'COLOR_WHITE')
-DVRCore.Notify.Fail('Titre', 'Sous-titre', 3000)
-DVRCore.Notify.Dead('Titre', 'audioRef', 'audioName', 3000)
-DVRCore.Notify.Update('Titre', 'Message', 3000)
-DVRCore.Notify.Warning('Titre', 'Message', 'audioRef', 'audioName', 3000)
+local result = jo.input.nui({
+    rows = {
+        { label = 'Prenom', type = 'text' },
+        { label = 'Nom', type = 'text' },
+        { label = 'Age', type = 'number' },
+    }
+})
+
+if result then
+    print(result[1], result[2], result[3])
+end
 ```
-
-### Depuis le server
-
-```lua
--- Envoie un type de notification a un joueur
-TriggerClientEvent('dvr:notify', source, 'Tip', 'Message ici', 3000)
-TriggerClientEvent('dvr:notify', source, 'Center', 'Bienvenue!', 5000)
-TriggerClientEvent('dvr:notify', source, 'Left', 'Titre', 'Sous-titre', 'generic_textures', 'tick', 3000)
-```
-
-### Types de notifications
-
-| Methode | Position | Icone | Description |
-|---|---|---|---|
-| `Tip` | Haut droite | Non | Message simple |
-| `Right` | Droite | Non | Tip droite |
-| `Left` | Gauche | Oui | Avec icone (dict + texture) |
-| `Top` | Haut centre | Non | Avec nom de lieu |
-| `Center` | Centre | Non | Texte centre ecran |
-| `Bottom` | Bas droite | Non | Style objectif |
-| `BottomRight` | Bas droite | Non | Notification bas droite |
-| `SimpleTop` | Haut | Non | Titre + sous-titre |
-| `Advanced` | Droite | Oui | Avec icone et couleur |
-| `LeftRank` | Gauche | Oui | Style rank up |
-| `Fail` | Centre | Non | Mission echouee |
-| `Dead` | Centre | Non | Mort du joueur |
-| `Update` | Centre | Non | Mise a jour mission |
-| `Warning` | Centre | Non | Avertissement |

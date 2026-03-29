@@ -1,6 +1,18 @@
 # API Server
 
-## Recuperer le Core
+## Exports cross-resource
+
+DVRCore expose des exports individuels (pas une table avec methodes) :
+
+```lua
+-- Recuperer les donnees d'un joueur
+local playerData = exports.DVRCore:GetPlayerData(source)
+
+-- Ajouter de l'argent
+exports.DVRCore:AddMoney(source, amount, type)
+```
+
+## Recuperer le Core (interne)
 
 ```lua
 local LC = exports['DVRCore']:GetCore()
@@ -25,7 +37,6 @@ local player = LC.GetPlayer(source)
 | `player.getCharId()` | number | **ID permanent du joueur** |
 | `player.getName()` | string | "Prenom Nom" |
 | `player.getDiscord()` | string | Discord ID |
-| `player.getName()` | string | "Prenom Nom" |
 | `player.getFirstname()` | string | Prenom |
 | `player.getLastname()` | string | Nom |
 | `player.getSource()` | number | Source (interne, ne pas exposer) |
@@ -63,17 +74,6 @@ Le job est stocke en JSON : `{ name, grade, label }`
 | `player.getGold()` | number | Or |
 | `player.addGold(amount)` | - | Ajoute de l'or |
 | `player.removeGold(amount)` | boolean | Retire (false si pas assez) |
-
-### Inventaire
-
-| Methode | Retour | Description |
-|---|---|---|
-| `player.getInventory()` | table | `{ {name, count}, ... }` |
-| `player.addItem(item, count)` | - | Ajoute un item |
-| `player.removeItem(item, count)` | boolean | Retire (false si pas assez) |
-| `player.getItemCount(item)` | number | Quantite d'un item |
-| `player.getSlots()` | number | Nombre de slots |
-| `player.addSlots(amount)` | - | Ajoute des slots |
 
 ### Coords & Status
 
@@ -155,11 +155,14 @@ Auto-save toutes les 5 minutes (configurable).
 
 ## Callbacks
 
+Wrappent `jo.callback.register`. Le callback recoit `source` en premier parametre.
+
 ### Register
 
 ```lua
-DVRCore.Callback.Register('dvr:getPlayerData', function(source)
-    local player = DVRCore.GetPlayer(source)
+-- Core.Callback.Register = jo.callback.register
+Core.Callback.Register('core:getPlayerData', function(source)
+    local player = Core.GetPlayer(source)
     return {
         name  = player.getName(),
         money = player.getMoney(),
@@ -168,4 +171,10 @@ DVRCore.Callback.Register('dvr:getPlayerData', function(source)
 end)
 ```
 
-Le client appelle avec `DVRCore.Callback.Await()` et recoit le return directement.
+Le client appelle avec `Core.Callback.Await()` (= `jo.callback.triggerServer()`) et recoit le return directement.
+
+## Notifications (server -> client)
+
+```lua
+jo.notif.right(source, 'Message envoye au joueur')
+```

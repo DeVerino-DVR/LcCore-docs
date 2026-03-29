@@ -2,9 +2,9 @@
 
 ## Schema
 
-3 tables, pas plus. Toutes les donnees complexes sont en JSON.
+3 tables, pas plus. Toutes les donnees complexes sont en JSON. L'inventaire est gere par la resource separee `dvr_inventory`.
 
-### lc_characters
+### players
 
 Table principale, contient tout le personnage.
 
@@ -19,7 +19,6 @@ Table principale, contient tout le personnage.
 | `gang` | VARCHAR(50) | 'none' | Gang |
 | `money` | DOUBLE | 50.0 | Argent |
 | `gold` | DOUBLE | 0.0 | Or |
-| `inventory` | JSON | `[]` | Inventaire `[{name,count}]` |
 | `skin` | JSON | `{}` | Donnees skin |
 | `coords` | JSON | `{"x":...,"y":...,"z":...}` | Position |
 | `slots` | INT | 50 | Slots inventaire |
@@ -28,7 +27,7 @@ Table principale, contient tout le personnage.
 
 Index sur `discord` pour les lookups rapides.
 
-### lc_bans
+### bans
 
 | Colonne | Type | Description |
 |---|---|---|
@@ -39,7 +38,7 @@ Index sur `discord` pour les lookups rapides.
 | `banned_by` | VARCHAR(50) | Discord ID de l'admin |
 | `created_at` | TIMESTAMP | Date du ban |
 
-### lc_counties
+### counties
 
 | Colonne | Type | Description |
 |---|---|---|
